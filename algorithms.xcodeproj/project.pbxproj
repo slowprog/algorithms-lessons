@@ -7,8 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		21610DED1FD9766A00227A7C /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = 21610DEC1FD9766A00227A7C /* main.c */; };
+		21610DED1FD9766A00227A7C /* lesson_2.c in Sources */ = {isa = PBXBuildFile; fileRef = 21610DEC1FD9766A00227A7C /* lesson_2.c */; };
 		21DCC0B71FD4C6E8005A06A4 /* lesson_1.c in Sources */ = {isa = PBXBuildFile; fileRef = 21DCC0B61FD4C6E8005A06A4 /* lesson_1.c */; };
+		21EEE5FE1FDE1CC100862435 /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = 21EEE5FD1FDE1CC100862435 /* main.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -24,9 +25,10 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		21610DEC1FD9766A00227A7C /* main.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
+		21610DEC1FD9766A00227A7C /* lesson_2.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = lesson_2.c; sourceTree = "<group>"; };
 		21DCC0B31FD4C6E8005A06A4 /* algorithms */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = algorithms; sourceTree = BUILT_PRODUCTS_DIR; };
 		21DCC0B61FD4C6E8005A06A4 /* lesson_1.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = lesson_1.c; sourceTree = "<group>"; };
+		21EEE5FD1FDE1CC100862435 /* main.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -60,7 +62,8 @@
 			isa = PBXGroup;
 			children = (
 				21DCC0B61FD4C6E8005A06A4 /* lesson_1.c */,
-				21610DEC1FD9766A00227A7C /* main.c */,
+				21610DEC1FD9766A00227A7C /* lesson_2.c */,
+				21EEE5FD1FDE1CC100862435 /* main.c */,
 			);
 			path = algorithms;
 			sourceTree = "<group>";
@@ -122,8 +125,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				21610DED1FD9766A00227A7C /* main.c in Sources */,
+				21610DED1FD9766A00227A7C /* lesson_2.c in Sources */,
 				21DCC0B71FD4C6E8005A06A4 /* lesson_1.c in Sources */,
+				21EEE5FE1FDE1CC100862435 /* main.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
