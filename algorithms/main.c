@@ -1,251 +1,309 @@
 #include <stdio.h>
-#include <math.h>
+#include <malloc/malloc.h>
 #include <stdlib.h>
-#include <time.h>
 #include <string.h>
 
-void swap(int *a, int *b)
+#define T char
+#define MaxSize 100
+
+// Опишем структуру узла списка
+struct TNode
 {
-    int t = *a;
-    *a = *b;
-    *b = t;
+    T value;
+    struct TNode *next;
+};
+typedef struct TNode Node;
+
+struct Stack
+{
+    Node *head;
+    int size;
+    int maxSize;
+};
+struct Stack Stack;
+
+int push(T value)
+{
+    if (Stack.size >= Stack.maxSize) {
+        printf("Error stack size");
+
+        return 0;
+    }
+    
+    Node *tmp = (Node*) malloc(sizeof(Node));
+    
+    if (tmp == NULL) {
+        printf("Не получилось выделить память\n");
+        
+        return 0;
+    }
+    
+    tmp->value = value;
+    tmp->next = Stack.head;
+    Stack.head = tmp;
+    Stack.size++;
+    
+    return 1;
 }
 
-void printArray(int *a, int size)
+T pop() {
+    if (Stack.size == 0) {
+        return '\0';
+    }
+    // Временный указатель на голову чтобы удалить потом
+    Node* next = Stack.head;
+    // Значение "наверху" списка
+    T value = Stack.head->value;
+    // Перемещаем голову вниз
+    Stack.head = Stack.head->next;
+    // Запись, на которую указывала голова удаляем, освобождая память
+    free(next);
+    Stack.size--;
+    // Возвращаем значение, которое было в голове
+    return value;
+}
+
+T get() {
+    if (Stack.size == 0) {
+        return '\0';
+    }
+    
+    return Stack.head->value;
+}
+
+void printStack()
 {
+    Node *current = Stack.head;
+    while(current != NULL)
+    {
+        printf("%c ", current->value);
+        current = current->next;
+    }
+    printf("\n");
+}
+
+void clearStack()
+{
+    while(Stack.size != 0) {
+        pop();
+    }
+}
+
+char* convert(int number)
+{
+    while (number > 1) {
+        push(number % 2 == 0 ? '0' : '1');
+        number /= 2;
+    }
+    
+    push(number == 0 ? '0' : '1');
+    
+    char string[MaxSize] = "";
+    char part;
+    
+    while(Stack.size != 0) {
+        part = pop();
+        strcat(string, &part);
+    }
+    
+    return strdup(string);
+}
+
+void convertTask1()
+{
+    printf("Task 1: перевод из 10-ой в 2-ую систему счисления с помощью стека\n");
+    
+    printf("Переводим %d в бинарное отображение: %s\n", 1, convert(1));
+    printf("Переводим %d в бинарное отображение: %s\n", 106, convert(106));
+    printf("Переводим %d в бинарное отображение: %s\n", 7492, convert(7492));
+}
+
+/**
+ * Проверяет наличие элемента в массиве, если нет, то вернёт -1,
+ * иначе номериндекс элемента в массиве.
+ */
+int searchArray(int val, int *arr, int size){
     for (int i = 0; i < size; i++) {
-        printf("%2i ", a[i]);
+        if (arr[i] == val) {
+            return i;
+        }
     }
+    
+    return -1;
 }
 
-void fillArray(int *a, int size, int isRandom)
+int checkBrackets(char* string)
 {
-    for (int i = 0; i < size; i++) {
-        a[i] = isRandom ? ((int)rand() % 100) : i;
-    }
-}
-
-/**
- * Обычная сортировка пузырьком.
- */
-void bubbleClassic(int *array, int size)
-{
-    printf("\nTask 1a: bubble classic\n");
+    clearStack();
     
-    printf("%-16s", "Array: ");
-    printArray(array, size);
-    printf("\n");
+    int index;
+    const int size = 4;
+    int open[size] = {'{', '[', '<', '('};
+    int close[size] = {'}', ']', '>', ')'};
     
-    int i;
-    int j;
-    int count = 0;
-    
-    for (i = 0; i < size; i++) {
-        for (j = 0; j < size - 1; j++) {
-            count++;
-            if (array[j] > array[j + 1]) {
-                swap(&array[j], &array[j + 1]);
+    for (int i = 0; string[i] != '\0'; i++){
+        if (searchArray(string[i], open, size) != -1) {
+            push(string[i]);
+        } else if (searchArray(string[i], close, size) != -1) {
+            index = searchArray(pop(), open, size);
+            if (string[i] != close[index]) {
+                return 0;
             }
         }
     }
     
-    printf("%-16s", "Sorted: ");
-    printArray(array, size);
-    printf("– hits %d (O(n^2) = %d)\n", count, size * size);
+    return 1;
 }
 
-/**
- * Сортировка пузырьком оканчивающаяся раньше, если была итерация без перемещений.
- */
-void bubbleFast(int *array, int size)
+void bracketsTask3()
 {
-    printf("\nTask 1b: bubble fast\n");
+    printf("\nTask 3: проверка валидности скобок\n");
     
-    printf("%-16s", "Array: ");
-    printArray(array, size);
-    printf("\n");
+    printf("Проверяем строку %s: %s\n", "([{}])", checkBrackets("([{}])") ? "валидно" : "невалидно");
+    printf("Проверяем строку %s: %s\n", "([{])", checkBrackets("([{})") ? "валидно" : "невалидно");
+    printf("Проверяем строку %s: %s\n", " [2/{5*(4+7)}]", checkBrackets("[2/{5*(4+7)}]") ? "валидно" : "невалидно");
+    printf("Проверяем строку %s: %s\n", "(1 - 1) * 2", checkBrackets("(1 - 1) * 2") ? "валидно" : "невалидно");
+    printf("Проверяем строку %s: %s\n", "(1 - 1) * 2)", checkBrackets("(1 - 1) * 2)") ? "валидно" : "невалидно");
     
-    int i;
-    int j;
-    int count = 0;
-    int found = 0;
-    
-    for (i = 0; i < size; i++) {
-        found = 0;
-        for (j = 0; j < size - 1; j++) {
-            count++;
-            if (array[j] > array[j + 1]) {
-                swap(&array[j], &array[j + 1]);
-                found = 1;
-            }
-        }
-        if (!found) {
-            break;
-        }
-    }
-    
-    printf("%-16s", "Sorted: ");
-    printArray(array, size);
-    printf("– hits %d (O(n^2) = %d)\n", count, size * size);
 }
 
 /**
- * Обычная шейкерная сортировка.
+ * Перевод инфиксной записи в постфиксную с условием, что все элементы
+ * разбиты проблеами, и даже скобки должны ими отделяться. А все операции односимвольные.
  */
-void shakeClassic(int *array, int size)
+char* convertInfToPost(char input[])
 {
-    printf("\nTask 2a: shake classic\n");
+    char output[MaxSize] = "";
+    char *string;
+    char *array[20] = {0};
+    char *part;
+    char first;
+    int number = 0;
+    int inc = 0;
+    int end = 0;
+    char current;
     
-    printf("%-16s", "Array: ");
-    printArray(array, size);
-    printf("\n");
+    string = strdup(input);
     
-    int i;
-    int j;
-    int count = 0;
-    
-    for (i = 0; i < size; i++) {
-        for (j = i; j < size - 1 - i; j++) {
-            count++;
-            if (array[j] > array[j + 1]) {
-                swap(&array[j], &array[j + 1]);
-            }
-        }
-        
-        for (j = size - 1 - i; j > i; j--) {
-            count++;
-            if (array[j] < array[j - 1]) {
-                swap(&array[j], &array[j - 1]);
-            }
-        }
+    // Разбиваем строку по пробелам.
+    while((part = strsep(&string, " ")) != NULL) {
+        array[inc++] = strdup(part);
     }
     
-    printf("%-16s", "Sorted: ");
-    printArray(array, size);
-    printf("– hits %d (O(n^2) = %d)\n", count, size * size);
-}
-
-/**
- * Шейкерная сортировка оканчивающаяся раньше, если была итерация без перемещений.
- */
-void shakeFast(int *array, int size)
-{
-    printf("\nTask 2b: shake fast\n");
+    number = inc;
+    inc = 0;
     
-    printf("%-16s", "Array: ");
-    printArray(array, size);
-    printf("\n");
-    
-    int i;
-    int j;
-    int count = 0;
-    int found = 0;
-    
-    for (i = 0; i < size; i++) {
-        found = 0;
-        for (j = i; j < size - 1 - i; j++) {
-            count++;
-            if (array[j] > array[j + 1]) {
-                swap(&array[j], &array[j + 1]);
-                found = 1;
-            }
-        }
-        
-        if (!found) {
-            break;
-        }
-        
-        for (j = size - 1 - i; j > i; j--) {
-            count++;
-            if (array[j] < array[j - 1]) {
-                swap(&array[j], &array[j - 1]);
-                found = 1;
-            }
-        }
-        
-        if (!found) {
-            break;
-        }
-    }
-    
-    printf("%-16s", "Sorted: ");
-    printArray(array, size);
-    printf("– hits %d (O(n^2) = %d)\n", count, size * size);
-}
-
-/**
- * Бинарный поиск в массиве.
- */
-void binarySearch(int *array, int size, int needle)
-{
-    printf("\nTask 3: binary search (range 0..%d) – %d\n", size - 1, needle);
-    
-    int first = 0;
-    int last = size;
-    int count = 0;
-    int center = last / 2;
-    
-    while (first < last) {
-        count++;
-        // 0 1 2 3 4 5 6 7 8 9 10 11 12
-        if (array[center] >= needle) {
-            last = center;
+    while (!end) {
+        // Получаем текущее значение с верха стека.
+        first = get();
+        part = array[inc];
+        // Костыльный выход т.к. нормальные значения в массиве закончились
+        if (part != '\0') {
+            current = part[0];
         } else {
-            first = center + 1;
+            current = '\0';
         }
-        
-        center = first + (last - first) / 2;
+        // Если это не цифра, то обрабатываем операцию
+        if ((part == '\0' || atoi(part) == 0) && current != '0') {
+            switch(current) {
+                case '+':
+                case '-':
+                    if (first == '\0' || first == '(') {
+                        push(current);
+                        inc++;
+                    } else if (first == '+' || first == '-' || first == '*' || first == '/') {
+                        pop();
+                        strcat(output, &first);
+                        output[strlen(output)] = '\0';
+                        strcat(output, " ");
+                        output[strlen(output)] = '\0';
+                    }
+                    break;
+                    
+                case '*':
+                case '/':
+                    if (first == '\0' || first == '(' || first == '+' || first == '-') {
+                        push(current);
+                        inc++;
+                    } else if (first == '*' || first == '/') {
+                        pop();
+                        strcat(output, &first);
+                        output[strlen(output)] = '\0';
+                        strcat(output, " ");
+                        output[strlen(output)] = '\0';
+                    }
+                    break;
+                    
+                case '(':
+                    push(current);
+                    inc++;
+                    break;
+                    
+                case ')':
+                    if (first == '\0') {
+                        return "Ошибка с закрывающей скобкой!";
+                    } else if (first == '+' || first == '-' || first == '*' || first == '/') {
+                        pop();
+                        // Супер-костыль т.к. копировался мусор и я без понятия почему!
+                        unsigned long len = strlen(output);
+                        strcat(output, &first);
+                        output[len + 1] = 0;
+                        strcat(output, " ");
+                    } else if (first == '(') {
+                        pop();
+                        inc++;
+                    }
+                    break;
+                    
+                case '\0':
+                    if (first == '\0') {
+                        end = 1;
+                    } else if (first == '+' || first == '-' || first == '*' || first == '/') {
+                        pop();
+                        strcat(output, &first);
+                        output[strlen(output)] = '\0';
+                        strcat(output, " ");
+                        output[strlen(output)] = '\0';
+                    } else if (first == '(') {
+                        return "Открывающая скобка не на своём месте";
+                    }
+                    break;
+                    
+                default:
+                    return "Неизвестный символ!";
+            }
+        } else {
+            // Цифру ложим в выходной массив
+            strcat(output, part);
+            strcat(output, " ");
+            inc++;
+        }
     }
     
-    if (array[center] == needle) {
-        printf("%-16s", "Found: ");
-        printf("hits %d\n", count);
-    } else {
-        printf("%-16s", "Not found: ");
-        printf("hits %d\n", count);
-    }
+    return strdup(output);
 }
 
-void sortings()
-{
-    int size = 13;
-    int arrayBuuble[size];
-    int arrayBuubleFast[size];
-    int arrayShake[size];
-    int arrayShakeFast[size];
-    
-    fillArray(arrayBuuble, size, 1);
-    
-    memcpy(arrayBuubleFast, arrayBuuble, sizeof(arrayBuuble));
-    memcpy(arrayShake, arrayBuuble, sizeof(arrayBuuble));
-    memcpy(arrayShakeFast, arrayBuuble, sizeof(arrayBuuble));
-    
-    bubbleClassic(arrayBuuble, size);
-    bubbleFast(arrayBuubleFast, size);
-    shakeClassic(arrayShake, size);
-    shakeFast(arrayShakeFast, size);
-}
 
-void searching()
+void infToPostTask5()
 {
-    int size = 100;
-    int array[size];
+    printf("\nTask 5: перевод инфиксной записи в постфиксную\n");
     
-    fillArray(array, size, 0);
-    
-    // Разные варианты искомого, чтобы поглядеть во сколько хитов закончит.
-    binarySearch(array, size, array[0]);
-    binarySearch(array, size, array[size - 1]);
-    binarySearch(array, size, array[size / 2 - 1]);
-    binarySearch(array, size, array[size / 2]);
-    binarySearch(array, size, array[size / 2 + 1]);
-    binarySearch(array, size, size);
+    printf("Переводим строку %s = %s\n", "11 + 3 / 5", convertInfToPost("11 + 3 / 5"));
+    printf("Переводим строку %s = %s\n", "( 11 + 3 ) / 5", convertInfToPost("( 11 + 3 ) / 5"));
+    printf("Переводим строку %s = %s\n", "( 11 + ( 3 - 1 ) ) / 5", convertInfToPost("( 11 + ( 3 - 1 ) ) / 5"));
+    printf("Переводим строку %s = %s\n", "( 11 + ( 3 - 1 ) / 5", convertInfToPost("( 11 + ( 3 - 1 ) / 5"));
+    printf("Переводим строку %s = %s\n", "11 + ( 3 - 1 ) ) / 5", convertInfToPost("11 + ( 3 - 1 ) ) / 5"));
+    printf("Переводим строку %s = %s\n", "11 + ( 3 - 1 ) 5", convertInfToPost("11 + ( 3 - 1 ) 5"));
 }
 
 int main()
 {
-    srand((int)time(NULL));
+    Stack.maxSize = MaxSize;
+    Stack.head = NULL;
     
-    sortings();
-    searching();
+    convertTask1();
+    bracketsTask3();
+    infToPostTask5();
+    
+    return 0;
 }
