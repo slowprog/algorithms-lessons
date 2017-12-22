@@ -1,309 +1,236 @@
+//
+//  main.c
+//  algorithms
+//
+//  Created by SlowProg on 22.12.2017.
+//  Copyright © 2017 SlowProg. All rights reserved.
+//
+
 #include <stdio.h>
 #include <malloc/malloc.h>
 #include <stdlib.h>
 #include <string.h>
 
-#define T char
-#define MaxSize 100
-
-// Опишем структуру узла списка
-struct TNode
+int hash(char *str)
 {
-    T value;
-    struct TNode *next;
-};
-typedef struct TNode Node;
-
-struct Stack
-{
-    Node *head;
-    int size;
-    int maxSize;
-};
-struct Stack Stack;
-
-int push(T value)
-{
-    if (Stack.size >= Stack.maxSize) {
-        printf("Error stack size");
-
-        return 0;
+    int hash = 1;
+    int c;
+    
+    while (c = *str++) {
+        hash += hash ^ c * 5;
     }
     
-    Node *tmp = (Node*) malloc(sizeof(Node));
-    
-    if (tmp == NULL) {
-        printf("Не получилось выделить память\n");
-        
-        return 0;
-    }
-    
-    tmp->value = value;
-    tmp->next = Stack.head;
-    Stack.head = tmp;
-    Stack.size++;
-    
-    return 1;
+    return hash;
 }
 
-T pop() {
-    if (Stack.size == 0) {
-        return '\0';
-    }
-    // Временный указатель на голову чтобы удалить потом
-    Node* next = Stack.head;
-    // Значение "наверху" списка
-    T value = Stack.head->value;
-    // Перемещаем голову вниз
-    Stack.head = Stack.head->next;
-    // Запись, на которую указывала голова удаляем, освобождая память
-    free(next);
-    Stack.size--;
-    // Возвращаем значение, которое было в голове
-    return value;
-}
-
-T get() {
-    if (Stack.size == 0) {
-        return '\0';
-    }
-    
-    return Stack.head->value;
-}
-
-void printStack()
+void hashTask1()
 {
-    Node *current = Stack.head;
-    while(current != NULL)
+    printf("Задача 1: простейшая хеш-функция\n");
+    
+    printf("Преобразовываем строку %10s: %i\n", "a", hash("a"));
+    printf("Преобразовываем строку %10s: %i\n", "b", hash("b"));
+    printf("Преобразовываем строку %10s: %i\n", "aaaaa", hash("aaaaa"));
+    printf("Преобразовываем строку %10s: %i\n", "aaaab", hash("aaaab"));
+    printf("Преобразовываем строку %10s: %i\n", "adbjmccsf", hash("adbjmccsf"));
+    printf("Преобразовываем строку %10s: %i\n", "11111", hash("11111"));
+    printf("Преобразовываем строку %10s: %i\n", "12345", hash("12345"));
+}
+
+typedef int T;
+typedef struct Node {
+    T data;
+    struct Node *left;
+    struct Node *right;
+    struct Node *parent;
+} Node;
+
+// Распечатка двоичного дерева в виде скобочной записи
+void printTree(Node *root) {
+    if (root)
     {
-        printf("%c ", current->value);
-        current = current->next;
+        printf("%d",root->data);
+        if (root->left || root->right)
+        {
+            printf("(");
+            
+            if (root->left)
+                printTree(root->left);
+            else
+                printf("NULL");
+            printf(",");
+            
+            if (root->right)
+                printTree(root->right);
+            else
+                printf("NULL");
+            printf(")");
+        }
     }
-    printf("\n");
 }
 
-void clearStack()
-{
-    while(Stack.size != 0) {
-        pop();
-    }
+// Создание нового узла
+Node* getFreeNode(T value, Node *parent) {
+    Node* tmp = (Node*) malloc(sizeof(Node));
+    tmp->left = tmp->right = NULL;
+    tmp->data = value;
+    tmp->parent = parent;
+    return tmp;
 }
 
-char* convert(int number)
-{
-    while (number > 1) {
-        push(number % 2 == 0 ? '0' : '1');
-        number /= 2;
+// Вставка узла
+void insert(Node **head, int value) {
+    Node *tmp = NULL;
+    if (*head == NULL)
+    {
+        *head = getFreeNode(value, NULL);
+        return;
     }
     
-    push(number == 0 ? '0' : '1');
-    
-    char string[MaxSize] = "";
-    char part;
-    
-    while(Stack.size != 0) {
-        part = pop();
-        strcat(string, &part);
+    tmp = *head;
+    while (tmp)
+    {
+        if (value> tmp->data)
+        {
+            if (tmp->right)
+            {
+                tmp = tmp->right;
+                continue;
+            }
+            else
+            {
+                tmp->right = getFreeNode(value, tmp);
+                return;
+            }
+        }
+        else if (value< tmp->data)
+        {
+            if (tmp->left)
+            {
+                tmp = tmp->left;
+                continue;
+            }
+            else
+            {
+                tmp->left = getFreeNode(value, tmp);
+                return;
+            }
+        }
+        else
+        {
+            exit(2);// дерево построено неправильно
+        }
     }
-    
-    return strdup(string);
-}
-
-void convertTask1()
-{
-    printf("Task 1: перевод из 10-ой в 2-ую систему счисления с помощью стека\n");
-    
-    printf("Переводим %d в бинарное отображение: %s\n", 1, convert(1));
-    printf("Переводим %d в бинарное отображение: %s\n", 106, convert(106));
-    printf("Переводим %d в бинарное отображение: %s\n", 7492, convert(7492));
 }
 
 /**
- * Проверяет наличие элемента в массиве, если нет, то вернёт -1,
- * иначе номериндекс элемента в массиве.
+ * КЛП - “корень-левый-правый” (обход в прямом порядке, pre-order)
  */
-int searchArray(int val, int *arr, int size){
-    for (int i = 0; i < size; i++) {
-        if (arr[i] == val) {
-            return i;
-        }
+void preOrderTravers(Node* root) {
+    if (root) {
+        printf("%d ", root->data);
+        preOrderTravers(root->left);
+        preOrderTravers(root->right);
     }
-    
-    return -1;
-}
-
-int checkBrackets(char* string)
-{
-    clearStack();
-    
-    int index;
-    const int size = 4;
-    int open[size] = {'{', '[', '<', '('};
-    int close[size] = {'}', ']', '>', ')'};
-    
-    for (int i = 0; string[i] != '\0'; i++){
-        if (searchArray(string[i], open, size) != -1) {
-            push(string[i]);
-        } else if (searchArray(string[i], close, size) != -1) {
-            index = searchArray(pop(), open, size);
-            if (string[i] != close[index]) {
-                return 0;
-            }
-        }
-    }
-    
-    return 1;
-}
-
-void bracketsTask3()
-{
-    printf("\nTask 3: проверка валидности скобок\n");
-    
-    printf("Проверяем строку %s: %s\n", "([{}])", checkBrackets("([{}])") ? "валидно" : "невалидно");
-    printf("Проверяем строку %s: %s\n", "([{])", checkBrackets("([{})") ? "валидно" : "невалидно");
-    printf("Проверяем строку %s: %s\n", " [2/{5*(4+7)}]", checkBrackets("[2/{5*(4+7)}]") ? "валидно" : "невалидно");
-    printf("Проверяем строку %s: %s\n", "(1 - 1) * 2", checkBrackets("(1 - 1) * 2") ? "валидно" : "невалидно");
-    printf("Проверяем строку %s: %s\n", "(1 - 1) * 2)", checkBrackets("(1 - 1) * 2)") ? "валидно" : "невалидно");
-    
 }
 
 /**
- * Перевод инфиксной записи в постфиксную с условием, что все элементы
- * разбиты проблеами, и даже скобки должны ими отделяться. А все операции односимвольные.
+ * ЛКП - “левый - корень - правый” (симметричный обход, in-order)
  */
-char* convertInfToPost(char input[])
-{
-    char output[MaxSize] = "";
-    char *string;
-    char *array[20] = {0};
-    char *part;
-    char first;
-    int number = 0;
-    int inc = 0;
-    int end = 0;
-    char current;
-    
-    string = strdup(input);
-    
-    // Разбиваем строку по пробелам.
-    while((part = strsep(&string, " ")) != NULL) {
-        array[inc++] = strdup(part);
+void inOrderTravers(Node* root) {
+    if (root) {
+        preOrderTravers(root->left);
+        printf("%d ", root->data);
+        preOrderTravers(root->right);
     }
-    
-    number = inc;
-    inc = 0;
-    
-    while (!end) {
-        // Получаем текущее значение с верха стека.
-        first = get();
-        part = array[inc];
-        // Костыльный выход т.к. нормальные значения в массиве закончились
-        if (part != '\0') {
-            current = part[0];
-        } else {
-            current = '\0';
-        }
-        // Если это не цифра, то обрабатываем операцию
-        if ((part == '\0' || atoi(part) == 0) && current != '0') {
-            switch(current) {
-                case '+':
-                case '-':
-                    if (first == '\0' || first == '(') {
-                        push(current);
-                        inc++;
-                    } else if (first == '+' || first == '-' || first == '*' || first == '/') {
-                        pop();
-                        strcat(output, &first);
-                        output[strlen(output)] = '\0';
-                        strcat(output, " ");
-                        output[strlen(output)] = '\0';
-                    }
-                    break;
-                    
-                case '*':
-                case '/':
-                    if (first == '\0' || first == '(' || first == '+' || first == '-') {
-                        push(current);
-                        inc++;
-                    } else if (first == '*' || first == '/') {
-                        pop();
-                        strcat(output, &first);
-                        output[strlen(output)] = '\0';
-                        strcat(output, " ");
-                        output[strlen(output)] = '\0';
-                    }
-                    break;
-                    
-                case '(':
-                    push(current);
-                    inc++;
-                    break;
-                    
-                case ')':
-                    if (first == '\0') {
-                        return "Ошибка с закрывающей скобкой!";
-                    } else if (first == '+' || first == '-' || first == '*' || first == '/') {
-                        pop();
-                        // Супер-костыль т.к. копировался мусор и я без понятия почему!
-                        unsigned long len = strlen(output);
-                        strcat(output, &first);
-                        output[len + 1] = 0;
-                        strcat(output, " ");
-                    } else if (first == '(') {
-                        pop();
-                        inc++;
-                    }
-                    break;
-                    
-                case '\0':
-                    if (first == '\0') {
-                        end = 1;
-                    } else if (first == '+' || first == '-' || first == '*' || first == '/') {
-                        pop();
-                        strcat(output, &first);
-                        output[strlen(output)] = '\0';
-                        strcat(output, " ");
-                        output[strlen(output)] = '\0';
-                    } else if (first == '(') {
-                        return "Открывающая скобка не на своём месте";
-                    }
-                    break;
-                    
-                default:
-                    return "Неизвестный символ!";
-            }
-        } else {
-            // Цифру ложим в выходной массив
-            strcat(output, part);
-            strcat(output, " ");
-            inc++;
-        }
-    }
-    
-    return strdup(output);
 }
 
+/**
+ * ЛПК - “левый - правый - корень” (обход в обратном порядке, post-order)
+ */
+void postOrderTravers(Node* root) {
+    if (root) {
+        preOrderTravers(root->left);
+        preOrderTravers(root->right);
+        printf("%d ", root->data);
+    }
+}
 
-void infToPostTask5()
-{
-    printf("\nTask 5: перевод инфиксной записи в постфиксную\n");
+/**
+ * Поиск по дереву с помощью КЛП
+ */
+int searchTree(Node* root, int needle) {
+    if (root) {
+        if (needle == root->data) {
+            return 1;
+        }
+        return searchTree(root->left, needle);
+        return searchTree(root->right, needle);
+    }
     
-    printf("Переводим строку %s = %s\n", "11 + 3 / 5", convertInfToPost("11 + 3 / 5"));
-    printf("Переводим строку %s = %s\n", "( 11 + 3 ) / 5", convertInfToPost("( 11 + 3 ) / 5"));
-    printf("Переводим строку %s = %s\n", "( 11 + ( 3 - 1 ) ) / 5", convertInfToPost("( 11 + ( 3 - 1 ) ) / 5"));
-    printf("Переводим строку %s = %s\n", "( 11 + ( 3 - 1 ) / 5", convertInfToPost("( 11 + ( 3 - 1 ) / 5"));
-    printf("Переводим строку %s = %s\n", "11 + ( 3 - 1 ) ) / 5", convertInfToPost("11 + ( 3 - 1 ) ) / 5"));
-    printf("Переводим строку %s = %s\n", "11 + ( 3 - 1 ) 5", convertInfToPost("11 + ( 3 - 1 ) 5"));
+    return 0;
+}
+
+int bitreeTask2()
+{
+    printf("\nЗадача 2: доработка работы с бинарным деревом\n");
+    
+    Node *Tree = NULL;
+    
+    char filename[256] = "";
+    int traverseType;
+    
+    printf("Введите название файла для подгрузки дерева: ");
+    scanf("%s", filename);
+    
+    printf("Укажите желаемый тип обхода [0 - все, 1 – КЛП, 2 – ЛКП, 3 – ЛПК]: ");
+    scanf("%i", &traverseType);
+    
+    FILE* file = fopen(filename, "r");
+    
+    if (file == NULL) {
+        printf("Can't open file %s!", filename);
+        exit(1);
+    }
+    int count;
+    fscanf(file, "%d", &count); // Считываем количество записей
+    
+    for (int i = 0; i < count; i++) {
+        int value;
+        fscanf(file, "%d", &value);
+        insert(&Tree, value);
+    }
+    fclose(file);
+    
+    printf("Дерево: ");
+    printTree(Tree);
+    
+    if (!traverseType || traverseType == 1) {
+        printf("\nОбходи дерева КЛП: ");
+        preOrderTravers(Tree);
+    }
+    
+    if (!traverseType || traverseType == 2) {
+        printf("\nОбходи дерева ЛКП: ");
+        inOrderTravers(Tree);
+    }
+    
+    if (!traverseType || traverseType == 3) {
+        printf("\nОбходи дерева ЛПК: ");
+        postOrderTravers(Tree);
+    }
+    
+    printf("\nПоиск в дереве %i: %s\n", 3, searchTree(Tree, 3) ? "есть" : "нет");
+    printf("Поиск в дереве %i: %s\n", 4, searchTree(Tree, 4) ? "есть" : "нет");
+    printf("Поиск в дереве %i: %s\n", 5, searchTree(Tree, 5) ? "есть" : "нет");
+    printf("Поиск в дереве %i: %s\n", 9, searchTree(Tree, 9) ? "есть" : "нет");
+    
+    return 0;
 }
 
 int main()
 {
-    Stack.maxSize = MaxSize;
-    Stack.head = NULL;
-    
-    convertTask1();
-    bracketsTask3();
-    infToPostTask5();
-    
-    return 0;
+    hashTask1();
+    bitreeTask2();
 }
+
+
