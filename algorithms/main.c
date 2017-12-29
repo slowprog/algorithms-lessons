@@ -1,189 +1,14 @@
-//
-//  main.c
-//  algorithms
-//
-//  Created by SlowProg on 22.12.2017.
-//  Copyright © 2017 SlowProg. All rights reserved.
-//
-
 #include <stdio.h>
-#include <malloc/malloc.h>
-#include <stdlib.h>
 #include <string.h>
+#include <malloc/malloc.h>
+#include "queue.c"
 
-int hash(char *str)
+int size = 1;
+
+int** readFromFile()
 {
-    int hash = 1;
-    int c;
-    
-    while (c = *str++) {
-        hash += hash ^ c * 5;
-    }
-    
-    return hash;
-}
-
-void hashTask1()
-{
-    printf("Задача 1: простейшая хеш-функция\n");
-    
-    printf("Преобразовываем строку %10s: %i\n", "a", hash("a"));
-    printf("Преобразовываем строку %10s: %i\n", "b", hash("b"));
-    printf("Преобразовываем строку %10s: %i\n", "aaaaa", hash("aaaaa"));
-    printf("Преобразовываем строку %10s: %i\n", "aaaab", hash("aaaab"));
-    printf("Преобразовываем строку %10s: %i\n", "adbjmccsf", hash("adbjmccsf"));
-    printf("Преобразовываем строку %10s: %i\n", "11111", hash("11111"));
-    printf("Преобразовываем строку %10s: %i\n", "12345", hash("12345"));
-}
-
-typedef int T;
-typedef struct Node {
-    T data;
-    struct Node *left;
-    struct Node *right;
-    struct Node *parent;
-} Node;
-
-// Распечатка двоичного дерева в виде скобочной записи
-void printTree(Node *root) {
-    if (root)
-    {
-        printf("%d",root->data);
-        if (root->left || root->right)
-        {
-            printf("(");
-            
-            if (root->left)
-                printTree(root->left);
-            else
-                printf("NULL");
-            printf(",");
-            
-            if (root->right)
-                printTree(root->right);
-            else
-                printf("NULL");
-            printf(")");
-        }
-    }
-}
-
-// Создание нового узла
-Node* getFreeNode(T value, Node *parent) {
-    Node* tmp = (Node*) malloc(sizeof(Node));
-    tmp->left = tmp->right = NULL;
-    tmp->data = value;
-    tmp->parent = parent;
-    return tmp;
-}
-
-// Вставка узла
-void insert(Node **head, int value) {
-    Node *tmp = NULL;
-    if (*head == NULL)
-    {
-        *head = getFreeNode(value, NULL);
-        return;
-    }
-    
-    tmp = *head;
-    while (tmp)
-    {
-        if (value> tmp->data)
-        {
-            if (tmp->right)
-            {
-                tmp = tmp->right;
-                continue;
-            }
-            else
-            {
-                tmp->right = getFreeNode(value, tmp);
-                return;
-            }
-        }
-        else if (value< tmp->data)
-        {
-            if (tmp->left)
-            {
-                tmp = tmp->left;
-                continue;
-            }
-            else
-            {
-                tmp->left = getFreeNode(value, tmp);
-                return;
-            }
-        }
-        else
-        {
-            exit(2);// дерево построено неправильно
-        }
-    }
-}
-
-/**
- * КЛП - “корень-левый-правый” (обход в прямом порядке, pre-order)
- */
-void preOrderTravers(Node* root) {
-    if (root) {
-        printf("%d ", root->data);
-        preOrderTravers(root->left);
-        preOrderTravers(root->right);
-    }
-}
-
-/**
- * ЛКП - “левый - корень - правый” (симметричный обход, in-order)
- */
-void inOrderTravers(Node* root) {
-    if (root) {
-        preOrderTravers(root->left);
-        printf("%d ", root->data);
-        preOrderTravers(root->right);
-    }
-}
-
-/**
- * ЛПК - “левый - правый - корень” (обход в обратном порядке, post-order)
- */
-void postOrderTravers(Node* root) {
-    if (root) {
-        preOrderTravers(root->left);
-        preOrderTravers(root->right);
-        printf("%d ", root->data);
-    }
-}
-
-/**
- * Поиск по дереву с помощью КЛП
- */
-int searchTree(Node* root, int needle) {
-    if (root) {
-        if (needle == root->data) {
-            return 1;
-        }
-        return searchTree(root->left, needle);
-        return searchTree(root->right, needle);
-    }
-    
-    return 0;
-}
-
-int bitreeTask2()
-{
-    printf("\nЗадача 2: доработка работы с бинарным деревом\n");
-    
-    Node *Tree = NULL;
-    
-    char filename[256] = "";
-    int traverseType;
-    
-    printf("Введите название файла для подгрузки дерева: ");
-    scanf("%s", filename);
-    
-    printf("Укажите желаемый тип обхода [0 - все, 1 – КЛП, 2 – ЛКП, 3 – ЛПК]: ");
-    scanf("%i", &traverseType);
+    int** matrix;
+    char* filename = "/Users/SlowProg/Dropbox/www/algorithms-lessons/matrix";
     
     FILE* file = fopen(filename, "r");
     
@@ -191,46 +16,84 @@ int bitreeTask2()
         printf("Can't open file %s!", filename);
         exit(1);
     }
-    int count;
-    fscanf(file, "%d", &count); // Считываем количество записей
+    fscanf(file, "%d", &size); // Считываем размер матрицы
     
-    for (int i = 0; i < count; i++) {
-        int value;
-        fscanf(file, "%d", &value);
-        insert(&Tree, value);
+    // Выделение памяти под указатели на строки
+    matrix = (int**)malloc(size * sizeof(int*));
+    
+    for (int i = 0; i < size; i++) {
+        // Выделение памяти под хранение строк
+        matrix[i] = (int*)malloc(size * sizeof(int));
+        for (int j = 0; j < size; j++) {
+            fscanf(file, "%d", &matrix[i][j]);
+        }
     }
+
     fclose(file);
     
-    printf("Дерево: ");
-    printTree(Tree);
-    
-    if (!traverseType || traverseType == 1) {
-        printf("\nОбходи дерева КЛП: ");
-        preOrderTravers(Tree);
+    return matrix;
+}
+
+void printMatrix(int** matrix)
+{
+    for (int i = 0; i < size; i++) {
+        for (int j = 0; j < size; j++) {
+            printf("%2d", matrix[i][j]);
+        }
+        
+        printf("\n");
     }
-    
-    if (!traverseType || traverseType == 2) {
-        printf("\nОбходи дерева ЛКП: ");
-        inOrderTravers(Tree);
+}
+
+void walkInDepth(int** matrix, int x)
+{
+    for (int y = x; y < size; y++) {
+        if (matrix[x][y] != 0) {
+            printf("(%d, %d) ", x, y);
+            
+            if (x != y) {
+                walkInDepth(matrix, y);
+            }
+        }
     }
+}
+
+void walkInWidth(int** matrix)
+{
+    TQueue queue = {NULL, NULL};
+    int leafs[size];
+    memset(leafs, 0, size * sizeof(int));
+    Push(&queue, 0);
     
-    if (!traverseType || traverseType == 3) {
-        printf("\nОбходи дерева ЛПК: ");
-        postOrderTravers(Tree);
-    }
+    do {
+        int value = Pop(&queue);
+        if (leafs[value] != 1) {
+            printf("%d ", value);
+            for (int i = 0; i < size; i++) {
+                if (matrix[value][i] != 0) {
+                    Push(&queue, i);
+                }
+            }
+            leafs[value] = 1;
+        }
+    } while (!IsEmpty(&queue));
     
-    printf("\nПоиск в дереве %i: %s\n", 3, searchTree(Tree, 3) ? "есть" : "нет");
-    printf("Поиск в дереве %i: %s\n", 4, searchTree(Tree, 4) ? "есть" : "нет");
-    printf("Поиск в дереве %i: %s\n", 5, searchTree(Tree, 5) ? "есть" : "нет");
-    printf("Поиск в дереве %i: %s\n", 9, searchTree(Tree, 9) ? "есть" : "нет");
-    
-    return 0;
+    printf("\n");
 }
 
 int main()
 {
-    hashTask1();
-    bitreeTask2();
+    // Задача 1 – чтение графа из файла
+    int** matrix = readFromFile();
+    
+    printf("Считанная матрица из файла:\n");
+    printMatrix(matrix);
+    
+    // Задача 2 – проход графа в глубину с помщью рекрсии
+    printf("\nОбход матрицы смежности в глубину:\n");
+    walkInDepth(matrix, 0);
+    
+    // Задача 3 – проход графа в ширину с помщью очереди
+    printf("\n\nОбход матрицы смежности в ширину:\n");
+    walkInWidth(matrix);
 }
-
-

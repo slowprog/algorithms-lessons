@@ -7,11 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		2142CF8F1FED1C67003D2F10 /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = 2142CF8E1FED1C67003D2F10 /* main.c */; };
-		21610DED1FD9766A00227A7C /* lesson_2.c in Sources */ = {isa = PBXBuildFile; fileRef = 21610DEC1FD9766A00227A7C /* lesson_2.c */; };
-		21DCC0B71FD4C6E8005A06A4 /* lesson_1.c in Sources */ = {isa = PBXBuildFile; fileRef = 21DCC0B61FD4C6E8005A06A4 /* lesson_1.c */; };
-		21E45E011FE694CC0053CC91 /* lesson_5.c in Sources */ = {isa = PBXBuildFile; fileRef = 21E45E001FE694CC0053CC91 /* lesson_5.c */; };
-		21EEE5FE1FDE1CC100862435 /* lesson_3.c in Sources */ = {isa = PBXBuildFile; fileRef = 21EEE5FD1FDE1CC100862435 /* lesson_3.c */; };
+		21934DCA1FF533C300E60105 /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = 21934DC91FF533C300E60105 /* main.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -27,9 +23,12 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		2142CF8E1FED1C67003D2F10 /* main.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
+		2142CF8E1FED1C67003D2F10 /* lesson_6.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = lesson_6.c; sourceTree = "<group>"; };
 		21610DEC1FD9766A00227A7C /* lesson_2.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = lesson_2.c; sourceTree = "<group>"; };
 		21830A271FED2B170001B633 /* data */ = {isa = PBXFileReference; lastKnownFileType = text; path = data; sourceTree = "<group>"; };
+		21934DC91FF533C300E60105 /* main.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
+		21934DCB1FF5391C00E60105 /* matrix */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = matrix; sourceTree = "<group>"; };
+		21934DCC1FF552B300E60105 /* queue.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = queue.c; sourceTree = "<group>"; };
 		21DCC0B31FD4C6E8005A06A4 /* algorithms */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = algorithms; sourceTree = BUILT_PRODUCTS_DIR; };
 		21DCC0B61FD4C6E8005A06A4 /* lesson_1.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = lesson_1.c; sourceTree = "<group>"; };
 		21E45E001FE694CC0053CC91 /* lesson_5.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = lesson_5.c; sourceTree = "<group>"; };
@@ -51,6 +50,7 @@
 			isa = PBXGroup;
 			children = (
 				21830A271FED2B170001B633 /* data */,
+				21934DCB1FF5391C00E60105 /* matrix */,
 				21DCC0B51FD4C6E8005A06A4 /* algorithms */,
 				21DCC0B41FD4C6E8005A06A4 /* Products */,
 			);
@@ -67,9 +67,11 @@
 		21DCC0B51FD4C6E8005A06A4 /* algorithms */ = {
 			isa = PBXGroup;
 			children = (
-				2142CF8E1FED1C67003D2F10 /* main.c */,
+				2142CF8E1FED1C67003D2F10 /* lesson_6.c */,
+				21934DC91FF533C300E60105 /* main.c */,
 				21DCC0B61FD4C6E8005A06A4 /* lesson_1.c */,
 				21610DEC1FD9766A00227A7C /* lesson_2.c */,
+				21934DCC1FF552B300E60105 /* queue.c */,
 				21EEE5FD1FDE1CC100862435 /* lesson_3.c */,
 				21E45E001FE694CC0053CC91 /* lesson_5.c */,
 			);
@@ -133,11 +135,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				2142CF8F1FED1C67003D2F10 /* main.c in Sources */,
-				21E45E011FE694CC0053CC91 /* lesson_5.c in Sources */,
-				21610DED1FD9766A00227A7C /* lesson_2.c in Sources */,
-				21DCC0B71FD4C6E8005A06A4 /* lesson_1.c in Sources */,
-				21EEE5FE1FDE1CC100862435 /* lesson_3.c in Sources */,
+				21934DCA1FF533C300E60105 /* main.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -251,6 +249,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
+				GCC_NO_COMMON_BLOCKS = NO;
+				OTHER_LDFLAGS = "";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -259,6 +259,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
+				GCC_NO_COMMON_BLOCKS = NO;
+				OTHER_LDFLAGS = "";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
